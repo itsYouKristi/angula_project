@@ -2,18 +2,18 @@
   <form [formGroup]="filterForm">
     <input class="searchByName" placeholder="🔍Search name"
             [formControlName]="'name'"
-            (input)="searchByName()"
+            (input)="filterList()"
     >
     <div class="wrapper">
       <p>Search industry:</p>
-      <select [formControlName]="'industry'" (change)="searchByIndustry()">
+      <select [formControlName]="'industry'" (change)="filterList()">
         <option></option>
         <option *ngFor="let industry of industryList" [value]="industry">{{industry}}</option>
       </select>
     </div>
     <div class="wrapper">
       <p>Search type:</p>
-      <select [formControlName]="'type'" (change)="searchByType()">
+      <select [formControlName]="'type'" (change)="filterList()">
         <option></option>
         <option *ngFor="let type of typeList" [value]="type">{{type}}</option>
       </select>

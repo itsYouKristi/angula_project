@@ -17,7 +17,7 @@ export class CompanyFilterComponent implements OnInit{
 
   constructor(
     private _formBuilder: FormBuilder,
-    private _company: ChangeCompanyListService
+    private _changeCompanyService: ChangeCompanyListService
   ){
     this.filterForm = this._formBuilder.group({
       name: [null],
@@ -26,20 +26,15 @@ export class CompanyFilterComponent implements OnInit{
     })
   }
   public ngOnInit(): void{
-    this.industryList = this._company.industryList
-    this.typeList = this._company.typeList
+    this.industryList = this._changeCompanyService.industryList
+    this.typeList = this._changeCompanyService.typeList
   }
 
-  public searchByName(){
-    this._company.searchByName(this.filterForm.get('name')?.value)
-  }
-
-  public searchByIndustry(){
-    this._company.searchByIndustry(this.filterForm.get('industry')?.value)
-  }
-
-  public searchByType(){
-    this._company.searchByType(this.filterForm.get('type')?.value)
+  public filterList(){
+    const name: string = this.filterForm.get('name')?.value;
+    const industry: string = this.filterForm.get('industry')?.value;
+    const type: string = this.filterForm.get('type')?.value;
+    this._changeCompanyService.filterList(name, industry, type);
   }
 }
 

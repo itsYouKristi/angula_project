@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import {ICompanyInfo} from "../../data/models/interfaces/company-info-responce-model.interface";
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ICompanyInfo} from "../../data/interfaces/company-info-responce-model.interface";
 import {ChangeCompanyListService} from "../../service/change-company-list.service";
 
 @Component({
@@ -7,23 +7,22 @@ import {ChangeCompanyListService} from "../../service/change-company-list.servic
   templateUrl: './company-list.component.html',
   styleUrls: ['./company-list.component.scss']
 })
-export class CompanyListComponent implements OnInit {
+export class CompanyListComponent implements OnInit, OnDestroy {
 
   public allCompany: ICompanyInfo[] = [];
 
   constructor(
     private _company: ChangeCompanyListService,
-  ) {
-  }
+  ){}
 
   public ngOnInit(): void {
     this._company.proxyTargetCompany
     .subscribe((value:ICompanyInfo[])=>{
-      this.allCompany = value
+      this.allCompany = value;
     })
   }
 
   public ngOnDestroy(): void{
-    this._company.resetList()
+    this._company.resetList();
   }
 }

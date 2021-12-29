@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
-import {ICompanyInfo} from "../../data/models/interfaces/company-info-responce-model.interface";
+import {ICompanyInfo} from "../../data/interfaces/company-info-responce-model.interface";
 import {ChangeCompanyListService} from "../../service/change-company-list.service";
 
 @Component({
@@ -19,7 +19,6 @@ export class CompanyDetailComponent implements OnInit {
   ) { }
 
   public ngOnInit(): void {
-    console.log(this._aRoute.snapshot)
     if (this._companyService.companyList.length > 0){
       const companyId: number = parseInt(this._aRoute.snapshot.queryParams.id, 10);
       this.company = this._companyService.getCompany(companyId);

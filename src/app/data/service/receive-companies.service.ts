@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
-import {ajax} from "rxjs/ajax";
+import {HttpClient} from '@angular/common/http';
+import {ICompanyInfo} from "../interfaces/company-info-responce-model.interface";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ReceiveCompaniesService {
 
-  constructor(
-  ){}
+    constructor(
+        private _httpClient: HttpClient
+    ) {}
 
-  public initList() {
-    return ajax.getJSON('https://random-data-api.com/api/company/random_company?size=100')
-  }
+    public initList() {
+        const url: string = 'https://random-data-api.com/api/company/random_company?size=100';
+        return this._httpClient.get<ICompanyInfo[]>(url);
+    }
 }

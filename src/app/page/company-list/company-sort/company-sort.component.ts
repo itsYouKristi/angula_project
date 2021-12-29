@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {ChangeCompanyListService} from "../../../service/change-company-list.service";
+import {sortListString} from "../../../type/sort-list-string.type";
 
 @Component({
   selector: 'app-company-sort',
@@ -12,7 +13,7 @@ export class CompanySortComponent {
     private _company: ChangeCompanyListService
   ) {}
 
-  public sortCompany(key: string){
+  public sortCompany(key: sortListString){
     this._company.sortList(key);
   }
 }

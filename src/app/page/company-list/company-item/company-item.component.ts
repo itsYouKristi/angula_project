@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {ICompanyInfo} from "../../../data/models/interfaces/company-info-responce-model.interface";
+import {ICompanyInfo} from "../../../data/interfaces/company-info-responce-model.interface";
 import {Router} from "@angular/router";
 
 
@@ -9,6 +9,7 @@ import {Router} from "@angular/router";
   styleUrls: ['./company-item.component.scss']
 })
 export class CompanyItemComponent {
+
   @Input()public company!: ICompanyInfo
 
   constructor(

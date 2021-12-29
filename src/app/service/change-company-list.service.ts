@@ -1,124 +1,83 @@
 import { Injectable } from '@angular/core';
-import {ICompanyInfo} from "../data/models/interfaces/company-info-responce-model.interface";
+import {ICompanyInfo} from "../data/interfaces/company-info-responce-model.interface";
 import {BehaviorSubject} from "rxjs";
 import {ReceiveCompaniesService} from "../data/service/receive-companies.service";
+import {sortListString} from "../type/sort-list-string.type";
 
 @Injectable()
 export class ChangeCompanyListService {
 
-  public industryList: Set<string> = new Set<string>()
-  public typeList: Set<string> = new Set<string>()
-  public resultList: ICompanyInfo[] = [];
-  public companyList: ICompanyInfo[] = [];
-  public actualityIndustry: ICompanyInfo[] = [];
-  public actualityName: ICompanyInfo[] = [];
-  public actualityType: ICompanyInfo[] = [];
-  public proxyTargetCompany: BehaviorSubject<ICompanyInfo[]> = new BehaviorSubject<ICompanyInfo[]>([])
-
-  constructor(
-    private _receive: ReceiveCompaniesService
-  ){
-    this._receive.initList().subscribe(
-      // @ts-ignore
-      (x: ICompanyInfo[]) => this.initialise(x)
-    )
-  }
-
-  public getCompany(key: number): ICompanyInfo{
-    return this.resultList.find((x) => x.id === key)!;
-  }
-
-  public getFilterSheets(){
-    for(let company of this.companyList) {
-      this.industryList.add(company.industry)
-      this.typeList.add(company.type)
+    public get industryList(){
+        return this._industryList;
     }
-  }
 
-  public sortList(key:string){
-    if(key === 'business_name'){
-      this.resultList = this.resultList.sort((x,y) => {
-        if(x.business_name > y.business_name) return 1;
-        else if(x.business_name < y.business_name) return -1;
-        else return 0;
-      })
+    public get typeList(){
+        return this._typeList;
     }
-    if(key === 'industry'){
-      this.resultList = this.resultList.sort((x,y) => {
-        if(x.industry > y.industry) return 1;
-        else if(x.industry < y.industry) return -1;
-        else return 0;
-      })
-    }
-    if(key === 'type'){
-      this.resultList = this.resultList.sort((x,y) => {
-        if(x.type > y.type) return 1;
-        else if(x.type < y.type) return -1;
-        else return 0;
-      })
-    }
-    this.proxyTargetCompany.next(this.resultList);
-  }
 
-  public searchByName(key: string){
-    this.actualityName = []
-    const bufferList: ICompanyInfo[] = this.actualityIndustry.filter(x => this.actualityType.includes(x))
-    for(let company of this.companyList){
-      if(company.business_name.toLowerCase().indexOf(key.toLowerCase()) === 0){
-        this.actualityName.push(company)
-      }
-    }
-    this.resultList = bufferList.filter(x => this.actualityName.includes(x))
-    this.proxyTargetCompany.next(this.resultList)
-  }
+    public resultList: ICompanyInfo[] = [];
+    public companyList: ICompanyInfo[] = [];
+    public proxyTargetCompany: BehaviorSubject<ICompanyInfo[]> = new BehaviorSubject<ICompanyInfo[]>([])
 
-  public searchByIndustry(key: string){
-    const bufferList: ICompanyInfo[] = this.actualityType.filter(x => this.actualityName.includes(x))
-    if(key !==''){
-      this.actualityIndustry = [];
-      for(let company of this.companyList){
-        if(company.industry == key){
-          this.actualityIndustry.push(company)
+    private _industryList: Set<string> = new Set<string>();
+    private _typeList: Set<string> = new Set<string>();
+    private _sortKey: sortListString = '';
+
+    constructor(
+        private _receive: ReceiveCompaniesService
+    ){
+        this._receive.initList().subscribe(
+            (value: ICompanyInfo[]) => this.initialise(value)
+        )
+    }
+
+    public getCompany(key: number): ICompanyInfo{
+        return this.companyList.find((x: ICompanyInfo) => x.id === key)!;
+    }
+
+    public sortList(key: sortListString){
+        if(key){
+            this.resultList = this.resultList.sort((x, y) => {
+                if (x[key] > y[key]) return 1;
+                else if (x[key] < y[key]) return -1;
+                else return 0;
+            })
+            this._sortKey = key;
         }
-      }
+        this.proxyTargetCompany.next(this.resultList);
     }
-    else {
-      this.actualityIndustry = this.companyList;
-    }
-    this.resultList = bufferList.filter(x => this.actualityIndustry.includes(x))
-    this.proxyTargetCompany.next(this.resultList)
-  }
 
-  public searchByType(key: string){
-    const bufferList: ICompanyInfo[] = this.actualityName.filter(x => this.actualityIndustry.includes(x))
-    if(key !== '') {
-      this.actualityType = [];
-      for (let company of this.companyList) {
-        if (company.type == key) {
-          this.actualityType.push(company)
+    public filterList(name: string, industry: string, type: string){
+        this.resultList = [];
+        this.companyList.forEach(
+            (company: ICompanyInfo) => {
+                if((company.business_name.toLowerCase().indexOf(name?.toLowerCase()) === 0 || !name) &&
+                        (company.industry === industry || !industry) &&
+                        (company.type == type || !type)) {
+                    this.resultList.push(company);
+                }
+            })
+        this.sortList(this._sortKey);
+    }
+
+    public resetList():void{
+        this.proxyTargetCompany.next(this.companyList);
+        this._sortKey = '';
+    }
+
+    private initialise(companyList: ICompanyInfo[]): void{
+        this.companyList = companyList;
+        this.proxyTargetCompany.next(companyList);
+        this.resultList = companyList;
+        this.getFilterSheets();
+    }
+
+    private getFilterSheets(){
+        for(let company of this.companyList) {
+            this._industryList.add(company.industry)
+            this._typeList.add(company.type)
         }
-      }
     }
-    else {
-      this.actualityType = this.companyList
-    }
-    this.resultList = bufferList.filter(x => this.actualityType.includes(x))
-    this.proxyTargetCompany.next(this.resultList)
-  }
-
-  public resetList():void{
-    this.proxyTargetCompany.next(this.companyList);
-  }
-
-  private initialise(companyList: ICompanyInfo[]){
-    this.companyList = companyList
-    this.proxyTargetCompany.next(companyList);
-    this.resultList = companyList;
-    this.actualityIndustry = companyList;
-    this.actualityType = companyList;
-    this.actualityName = companyList;
-    this.getFilterSheets()
-  }
 }
 
 
